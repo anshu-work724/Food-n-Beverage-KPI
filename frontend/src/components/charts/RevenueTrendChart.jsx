@@ -14,15 +14,18 @@ import { useAppContext } from '../../context/AppContext';
 const RevenueTrendChart = ({ days = 30 }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { timePeriod } = useAppContext();
+  const { dateRange } = useAppContext();
 
   useEffect(() => {
     fetchTrendData();
-  }, [timePeriod, days]);
+  }, [dateRange.startDate, dateRange.endDate, days]);
 
   const fetchTrendData = async () => {
     try {
-      const response = await fetch(`/api/kpi/daily_revenue/trend?days=${days}`);
+      const start = new Date(dateRange.startDate);
+      const end = new Date(dateRange.endDate);
+      const diffDays = Math.max(2, Math.floor((end - start) / (24 * 60 * 60 * 1000)) + 1);
+      const response = await fetch(`/api/kpi/daily_revenue/trend?days=${Math.min(days, diffDays)}`);
       const result = await response.json();
 
       if (result.success) {

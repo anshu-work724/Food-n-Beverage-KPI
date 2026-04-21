@@ -29,6 +29,23 @@ const getPeriodData = (period = 'today') => {
   return dataset.historicalData.slice(startIndex).map((day) => calculateDerivedKPIs(day));
 };
 
+const getRangeData = (startDate, endDate) => {
+  if (!startDate || !endDate) return null;
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return null;
+  if (end < start) return null;
+  const dayMs = 24 * 60 * 60 * 1000;
+  const rangeDays = Math.floor((end - start) / dayMs) + 1;
+  if (rangeDays <= 1 || rangeDays >= 62) return null;
+  return dataset.historicalData
+    .filter((day) => {
+      const current = new Date(day.date);
+      return current >= start && current <= end;
+    })
+    .map((day) => calculateDerivedKPIs(day));
+};
+
 const aggregatePeriodData = (days) => {
   if (!days.length) return null;
   if (days.length === 1) return days[0];
@@ -74,8 +91,8 @@ app.get('/api/dashboard', (req, res) => {
 app.get('/api/kpis/:category', (req, res) => {
   try {
     const { category } = req.params;
-    const { period = 'today' } = req.query;
-    const periodData = getPeriodData(period);
+    const { period = 'today', startDate, endDate } = req.query;
+    const periodData = getRangeData(startDate, endDate) || getPeriodData(period);
     const currentData = aggregatePeriodData(periodData);
     const previousData = periodData.length > 1 ? aggregatePeriodData(periodData.slice(0, -1)) : null;
 
@@ -85,6 +102,8 @@ app.get('/api/kpis/:category', (req, res) => {
       success: true,
       category,
       period,
+      startDate: startDate || null,
+      endDate: endDate || null,
       kpis: categoryKPIs,
     });
   } catch (error) {
@@ -239,6 +258,7 @@ app.get('/api/metadata', (req, res) => {
 app.get('/api/time/:period', (req, res) => {
   try {
     const { period } = req.params;
+    const { startDate, endDate } = req.query;
 
     let startIndex;
     if (period === 'today') {
@@ -251,7 +271,7 @@ app.get('/api/time/:period', (req, res) => {
       return res.status(400).json({ error: 'Invalid period' });
     }
 
-    const periodData = getPeriodData(period);
+    const periodData = getRangeData(startDate, endDate) || getPeriodData(period);
 
     // Calculate aggregates
     const totalRevenue = periodData.reduce((sum, day) => sum + day.revenue, 0);

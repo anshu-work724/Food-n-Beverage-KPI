@@ -8,16 +8,16 @@ const Customer = () => {
 
   const [kpis, setKpis] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { timePeriod } = useAppContext();
+  const { dateRange } = useAppContext();
 
   useEffect(() => {
     setLoading(true);
     fetchCustomerKPIs();
-  }, [timePeriod]);
+  }, [dateRange.startDate, dateRange.endDate]);
 
   const fetchCustomerKPIs = async () => {
     try {
-      const response = await fetch(`/api/kpis/Customer?period=${timePeriod}`);
+      const response = await fetch(`/api/kpis/Customer?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`);
       const data = await response.json();
       if (data.success) {
         setKpis(data.kpis || []);

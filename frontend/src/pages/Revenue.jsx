@@ -12,16 +12,16 @@ const Revenue = () => {
   const [kpis, setKpis] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedSuggestion, setSelectedSuggestion] = useState('');
-  const { timePeriod } = useAppContext();
+  const { dateRange } = useAppContext();
 
   useEffect(() => {
     setLoading(true);
     fetchRevenueKPIs();
-  }, [timePeriod]);
+  }, [dateRange.startDate, dateRange.endDate]);
 
   const fetchRevenueKPIs = async () => {
     try {
-      const response = await fetch(`/api/kpis/Revenue?period=${timePeriod}`);
+      const response = await fetch(`/api/kpis/Revenue?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`);
       const data = await response.json();
 
       if (data.success) {

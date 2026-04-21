@@ -3,7 +3,17 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
-  const [timePeriod, setTimePeriod] = useState('today'); // today, week, month
+  const [timePeriod, setTimePeriod] = useState('week'); // retained for compatibility
+  const getDefaultRange = () => {
+    const end = new Date();
+    const start = new Date();
+    start.setDate(end.getDate() - 6);
+    return {
+      startDate: start.toISOString().split('T')[0],
+      endDate: end.toISOString().split('T')[0],
+    };
+  };
+  const [dateRange, setDateRange] = useState(getDefaultRange());
   const [userRole, setUserRole] = useState('manager'); // manager, owner
   const [darkMode, setDarkMode] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('Revenue');
@@ -73,6 +83,8 @@ export const AppProvider = ({ children }) => {
   const value = {
     timePeriod,
     setTimePeriod,
+    dateRange,
+    setDateRange,
     userRole,
     setUserRole,
     darkMode,
@@ -90,7 +102,6 @@ export const AppProvider = ({ children }) => {
     informOwner,
     toasts,
     addToast,
-    userRole,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

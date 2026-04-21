@@ -36,18 +36,18 @@ const Orders = () => {
 
   const [kpis, setKpis] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { timePeriod, userRole } = useAppContext();
+  const { dateRange, userRole } = useAppContext();
   const [ownerMessage, setOwnerMessage] = useState('');
   const [selectedInsight, setSelectedInsight] = useState('');
 
   useEffect(() => {
     setLoading(true);
     fetchOrderKPIs();
-  }, [timePeriod]);
+  }, [dateRange.startDate, dateRange.endDate]);
 
   const fetchOrderKPIs = async () => {
     try {
-      const response = await fetch(`/api/kpis/Customer?period=${timePeriod}`);
+      const response = await fetch(`/api/kpis/Customer?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`);
       const data = await response.json();
 
       if (data.success) {

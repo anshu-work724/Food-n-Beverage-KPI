@@ -9,16 +9,16 @@ const Operations = () => {
   const [kpis, setKpis] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedStrategy, setSelectedStrategy] = useState('');
-  const { timePeriod } = useAppContext();
+  const { dateRange } = useAppContext();
 
   useEffect(() => {
     setLoading(true);
     fetchOperationalKPIs();
-  }, [timePeriod]);
+  }, [dateRange.startDate, dateRange.endDate]);
 
   const fetchOperationalKPIs = async () => {
     try {
-      const response = await fetch(`/api/kpis/Operations?period=${timePeriod}`);
+      const response = await fetch(`/api/kpis/Operations?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`);
       const data = await response.json();
 
       if (data.success) {

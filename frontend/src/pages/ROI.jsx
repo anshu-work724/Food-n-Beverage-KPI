@@ -8,16 +8,16 @@ const ROI = () => {
 
   const [kpis, setKpis] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { timePeriod } = useAppContext();
+  const { dateRange } = useAppContext();
 
   useEffect(() => {
     setLoading(true);
     fetchROIKPIs();
-  }, [timePeriod]);
+  }, [dateRange.startDate, dateRange.endDate]);
 
   const fetchROIKPIs = async () => {
     try {
-      const response = await fetch(`/api/kpis/ROI?period=${timePeriod}`);
+      const response = await fetch(`/api/kpis/ROI?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`);
       const data = await response.json();
       if (data.success) {
         setKpis(data.kpis || []);

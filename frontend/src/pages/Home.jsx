@@ -12,20 +12,17 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [selectedKpi, setSelectedKpi] = useState(null);
   const [expandedChart, setExpandedChart] = useState(null);
-  const { timePeriod, setAlerts } = useAppContext();
+  const { dateRange, setAlerts } = useAppContext();
 
   useEffect(() => {
     setLoading(true);
     fetchDashboardKPIs();
     fetchAlerts();
-  }, [timePeriod]);
+  }, [dateRange.startDate, dateRange.endDate]);
 
   const fetchDashboardKPIs = async () => {
     try {
-      let endpoint = '/api/dashboard';
-      if (timePeriod !== 'today') {
-        endpoint = `/api/time/${timePeriod}`;
-      }
+      const endpoint = `/api/time/week?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`;
 
       const response = await fetch(endpoint);
       const data = await response.json();
