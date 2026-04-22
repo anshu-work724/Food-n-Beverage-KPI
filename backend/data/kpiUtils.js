@@ -3,7 +3,8 @@
  * Functions to calculate derived KPIs and manage data
  */
 
-const { KPIConfig, calculateKPIStatus, calculateTrend } = require('./kpiConfig');
+
+import { KPIConfig, calculateKPIStatus, calculateTrend } from './kpiConfig.js';
 
 /**
  * Calculate derived KPIs from raw data
@@ -278,7 +279,7 @@ function compareKPIPeriods(currentPeriod, previousPeriod) {
   return comparison;
 }
 
-module.exports = {
+export {
   calculateDerivedKPIs,
   buildKPICardData,
   buildKPICategoryCards,

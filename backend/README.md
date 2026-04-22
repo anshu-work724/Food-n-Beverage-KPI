@@ -1,10 +1,5 @@
 # F&B KPI Intelligence System - API Documentation
 
-## Base URL
-```
-http://localhost:5000
-```
-
 ---
 
 ## Authentication

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+
 const ChannelMixChart = () => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -11,7 +13,7 @@ const ChannelMixChart = () => {
 
   const fetchChannelMix = async () => {
     try {
-      const response = await fetch('/api/revenue/channel-mix');
+      const response = await fetch(`${API_BASE}/api/revenue/channel-mix`);
       const result = await response.json();
 
       if (result.success) {

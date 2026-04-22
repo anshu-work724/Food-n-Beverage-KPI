@@ -362,7 +362,7 @@ function generateCompleteDataset() {
   };
 }
 
-module.exports = {
+export {
   generateCompleteDataset,
   generateDayData,
   generateAlerts,

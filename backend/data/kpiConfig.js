@@ -443,7 +443,7 @@ function calculateTrend(current, previous) {
   return parseFloat(change.toFixed(2));
 }
 
-module.exports = {
+export {
   KPIConfig,
   KPICategories,
   KPITiers,

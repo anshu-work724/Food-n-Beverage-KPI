@@ -10,6 +10,8 @@ import {
 } from 'lucide-react';
 import { useAppContext } from '../context/AppContext';
 
+const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+
 const AlertPanel = ({ isOpen, onClose }) => {
   const {
     alerts,
@@ -36,7 +38,7 @@ const AlertPanel = ({ isOpen, onClose }) => {
 
   const fetchAlerts = async () => {
     try {
-      const response = await fetch('/api/alerts');
+      const response = await fetch(`${API_BASE}/api/alerts`);
       const data = await response.json();
       setAlerts(data.alerts || []);
     } catch (error) {
@@ -47,7 +49,7 @@ const AlertPanel = ({ isOpen, onClose }) => {
   // Simulate alert
   const simulateAlert = async (alertType) => {
     try {
-      const response = await fetch('/api/simulate/alert', {
+      const response = await fetch(`${API_BASE}/api/simulate/alert`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ alertType }),

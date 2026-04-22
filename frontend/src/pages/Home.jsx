@@ -14,6 +14,8 @@ const Home = () => {
   const [expandedChart, setExpandedChart] = useState(null);
   const { dateRange, setAlerts } = useAppContext();
 
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
+
   useEffect(() => {
     setLoading(true);
     fetchDashboardKPIs();
@@ -22,7 +24,7 @@ const Home = () => {
 
   const fetchDashboardKPIs = async () => {
     try {
-      const endpoint = `/api/time/week?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`;
+      const endpoint = `${API_BASE}/api/time/week?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`;
 
       const response = await fetch(endpoint);
       const data = await response.json();
@@ -39,7 +41,7 @@ const Home = () => {
 
   const fetchAlerts = async () => {
     try {
-      const response = await fetch('/api/alerts');
+      const response = await fetch(`${API_BASE}/api/alerts`);
       const data = await response.json();
       setAlerts(data.alerts || []);
     } catch (error) {

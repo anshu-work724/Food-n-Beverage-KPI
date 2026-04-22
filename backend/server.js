@@ -3,17 +3,33 @@
  * Express backend for F&B KPI Intelligence System
  */
 
-const express = require('express');
-const cors = require('cors');
-const path = require('path');
-const { generateCompleteDataset } = require('./data/mockDataGenerator');
-const { calculateDerivedKPIs, buildDashboardKPIs, buildKPICategoryCards } = require('./data/kpiUtils');
+import express from 'express';
+import cors from 'cors';
+import path from 'path';
+import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { generateCompleteDataset, generateAlerts } from './data/mockDataGenerator.js';
+import {
+  calculateDerivedKPIs,
+  buildDashboardKPIs,
+  buildKPICategoryCards,
+} from './data/kpiUtils.js';
+import { KPIConfig } from './data/kpiConfig.js';
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
+const BACKEND_URL = process.env.BACKEND_URL || `http://localhost:${PORT}`;
 
 // Middleware
-app.use(cors());
+app.use(
+  cors({
+    origin: FRONTEND_URL,
+    credentials: true,
+  })
+);
 app.use(express.json());
 
 // Store dataset in memory (for development)
@@ -66,8 +82,12 @@ const aggregatePeriodData = (days) => {
  */
 app.get('/api/dashboard', (req, res) => {
   try {
-    const latestDay = calculateDerivedKPIs(dataset.historicalData[dataset.historicalData.length - 1]);
-    const previousDay = calculateDerivedKPIs(dataset.historicalData[dataset.historicalData.length - 2]);
+    const latestDay = calculateDerivedKPIs(
+      dataset.historicalData[dataset.historicalData.length - 1]
+    );
+    const previousDay = calculateDerivedKPIs(
+      dataset.historicalData[dataset.historicalData.length - 2]
+    );
 
     const dashboardKPIs = buildDashboardKPIs(latestDay, previousDay);
 
@@ -80,7 +100,9 @@ app.get('/api/dashboard', (req, res) => {
       },
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: 'Dashboard route failed', details: error.message });
+    res
+      .status(500)
+      .json({ success: false, error: 'Dashboard route failed', details: error.message });
   }
 });
 
@@ -94,7 +116,8 @@ app.get('/api/kpis/:category', (req, res) => {
     const { period = 'today', startDate, endDate } = req.query;
     const periodData = getRangeData(startDate, endDate) || getPeriodData(period);
     const currentData = aggregatePeriodData(periodData);
-    const previousData = periodData.length > 1 ? aggregatePeriodData(periodData.slice(0, -1)) : null;
+    const previousData =
+      periodData.length > 1 ? aggregatePeriodData(periodData.slice(0, -1)) : null;
 
     const categoryKPIs = buildKPICategoryCards(currentData, category, previousData);
 
@@ -107,7 +130,9 @@ app.get('/api/kpis/:category', (req, res) => {
       kpis: categoryKPIs,
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: 'Category KPI route failed', details: error.message });
+    res
+      .status(500)
+      .json({ success: false, error: 'Category KPI route failed', details: error.message });
   }
 });
 
@@ -119,7 +144,9 @@ app.get('/api/historical/:days', (req, res) => {
   const { days } = req.params;
   const numDays = Math.min(parseInt(days) || 30, 90);
 
-  const historicalData = dataset.historicalData.slice(-numDays).map((day) => calculateDerivedKPIs(day));
+  const historicalData = dataset.historicalData
+    .slice(-numDays)
+    .map((day) => calculateDerivedKPIs(day));
 
   res.json({
     success: true,
@@ -137,10 +164,11 @@ app.get('/api/kpi/:kpiId/trend', (req, res) => {
   const { days = 30 } = req.query;
   const numDays = Math.min(parseInt(days), 90);
 
-  const historicalData = dataset.historicalData.slice(-numDays).map((day) => calculateDerivedKPIs(day));
+  const historicalData = dataset.historicalData
+    .slice(-numDays)
+    .map((day) => calculateDerivedKPIs(day));
 
   // Find KPI config
-  const { KPIConfig } = require('./data/kpiConfig');
   const kpi = Object.values(KPIConfig).find((k) => k.id === kpiId);
 
   if (!kpi) {
@@ -276,10 +304,11 @@ app.get('/api/time/:period', (req, res) => {
     // Calculate aggregates
     const totalRevenue = periodData.reduce((sum, day) => sum + day.revenue, 0);
     const avgRevenue = totalRevenue / periodData.length;
-    const avgFoodCost = periodData.reduce((sum, day) => sum + day.foodCostPercent, 0) / periodData.length;
-    const avgLabourCost = periodData.reduce((sum, day) => sum + day.labourCostPercent, 0) / periodData.length;
+    const avgFoodCost =
+      periodData.reduce((sum, day) => sum + day.foodCostPercent, 0) / periodData.length;
+    const avgLabourCost =
+      periodData.reduce((sum, day) => sum + day.labourCostPercent, 0) / periodData.length;
 
-    const { buildDashboardKPIs } = require('./data/kpiUtils');
     const latestDay = periodData[periodData.length - 1];
     const previousDay = periodData.length > 1 ? periodData[periodData.length - 2] : null;
     const dashboardKPIs = buildDashboardKPIs(latestDay, previousDay);
@@ -298,7 +327,9 @@ app.get('/api/time/:period', (req, res) => {
       data: periodData,
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: 'Time period route failed', details: error.message });
+    res
+      .status(500)
+      .json({ success: false, error: 'Time period route failed', details: error.message });
   }
 });
 
@@ -333,7 +364,6 @@ app.post('/api/simulate/alert', (req, res) => {
   };
 
   if (alertType && simulatedAlerts[alertType]) {
-    const { generateAlerts } = require('./data/mockDataGenerator');
     dataset.alerts = generateAlerts(simulatedAlerts[alertType]);
 
     return res.json({
