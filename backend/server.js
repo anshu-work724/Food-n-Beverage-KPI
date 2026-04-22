@@ -23,13 +23,28 @@ const PORT = process.env.PORT || 5000;
 const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:3000';
 const BACKEND_URL = process.env.BACKEND_URL || `http://localhost:${PORT}`;
 
-// Middleware
-app.use(
-  cors({
-    origin: FRONTEND_URL,
-    credentials: true,
-  })
-);
+// Middleware - Configure CORS for both localhost and production
+const corsOptions = {
+  origin: (origin, callback) => {
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:5000',
+      process.env.FRONTEND_URL,
+    ].filter(Boolean);
+
+    if (
+      !origin ||
+      allowedOrigins.some((allowed) => origin.includes(allowed) || allowed.includes(origin))
+    ) {
+      callback(null, true);
+    } else {
+      callback(null, true); // Allow all origins in production, can be restricted later
+    }
+  },
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Store dataset in memory (for development)
