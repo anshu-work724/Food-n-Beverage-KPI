@@ -1,0 +1,12 @@
+[build]
+  # This tells Netlify to compile your Vite/React code
+  command = "npm run build"
+  
+  # This tells Netlify to serve the compiled output, not your raw source code
+  publish = "dist"
+
+# This section prevents "404 Not Found" errors when refreshing pages in React Router
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

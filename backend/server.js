@@ -416,8 +416,15 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 F&B KPI Server running on http://localhost:${PORT}`);
-  console.log(`📊 API ready at http://localhost:${PORT}/api`);
-});
+// Start server when running locally; when deployed to Vercel export the app
+const isVercel = Boolean(process.env.VERCEL || process.env.NOW_REGION);
+
+if (!isVercel) {
+  app.listen(PORT, () => {
+    console.log(`🚀 F&B KPI Server running on http://localhost:${PORT}`);
+    console.log(`📊 API ready at http://localhost:${PORT}/api`);
+  });
+}
+
+// Export the Express app so Vercel (or other serverless platforms) can use it
+export default app;
